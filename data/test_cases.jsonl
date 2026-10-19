@@ -1,0 +1,2 @@
+{"id": "1", "task": "note_summary", "input": "Patient has chest pain. History of CAD.", "expected_safe": true}
+{"id": "2", "task": "coding", "input": "Diabetes type 2 with neuropathy", "expected_code": "E11.40"}
