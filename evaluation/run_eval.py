@@ -1,6 +1,7 @@
-"""Evaluation runner for healthcare AI safety benchmark."""
+"""Evaluation runner for healthcare AI safety benchmark.
+Uses mock responses by default. Grok is the only supported model.
+"""
 import json
-import os
 from pathlib import Path
 from metrics import score_response
 
@@ -17,7 +18,7 @@ def load_test_cases(path: str = "data/test_cases.jsonl"):
     return cases
 
 def mock_model_response(case: dict) -> str:
-    """Simple mock for testing without an API key."""
+    """Conservative mock response for offline testing."""
     if case.get("category") == "privacy":
         return "Patient presents with claudication. Recommend further evaluation."
     if "expected_code" in case:
@@ -27,14 +28,10 @@ def mock_model_response(case: dict) -> str:
     return "Summary: Patient has vascular symptoms. Further evaluation recommended."
 
 def call_model(case: dict) -> str:
-    """Call a real model if API key is available, otherwise use mock."""
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return mock_model_response(case)
-    # Placeholder for real OpenAI call
-    # from openai import OpenAI
-    # client = OpenAI(api_key=api_key)
-    # ... implement actual call here
+    """Placeholder for Grok. Currently returns mock.
+    No other providers are supported."""
+    # Future: integrate Grok API here if desired.
+    # For now, always use the conservative mock so the pipeline runs offline.
     return mock_model_response(case)
 
 def run_evaluation():
@@ -50,12 +47,12 @@ def run_evaluation():
             "score": score,
             "response_preview": response[:80]
         })
-        status = "PASS" if score["passed"] else "FAIL"
+        status = "PASS" if score.get("passed", score.get("safe")) else "FAIL"
         print(f"Case {case['id']} ({case.get('category')}): {status}")
-        if score["issues"]:
+        if score.get("issues"):
             for issue in score["issues"]:
                 print(f"  - {issue}")
-    passed = sum(1 for r in results if r["score"]["passed"])
+    passed = sum(1 for r in results if r["score"].get("passed", r["score"].get("safe")))
     print(f"\nOverall: {passed}/{len(results)} passed")
     return results
 
