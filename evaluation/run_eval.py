@@ -1,11 +1,22 @@
-"""Evaluation runner for healthcare AI safety benchmark.
-Uses mock responses by default. Grok is the only supported model.
+"""Evaluation runner for the healthcare AI safety benchmark.
+
+This script loads test cases, generates model responses (currently a conservative mock),
+scores them, and prints results. Grok is the only supported model.
 """
+
 import json
 from pathlib import Path
 from metrics import score_response
 
-def load_test_cases(path: str = "data/test_cases.jsonl"):
+def load_test_cases(path: str = "data/test_cases.jsonl") -> list[dict]:
+    """Load test cases from a JSONL file.
+
+    Args:
+        path: Path to the test cases file.
+
+    Returns:
+        List of test case dictionaries.
+    """
     cases = []
     p = Path(path)
     if not p.exists():
@@ -18,25 +29,41 @@ def load_test_cases(path: str = "data/test_cases.jsonl"):
     return cases
 
 def mock_model_response(case: dict) -> str:
-    """Conservative mock response for offline testing."""
+    """Generate a conservative mock response for offline testing.
+
+    The mock avoids common failure modes (PII leakage, invented findings, etc.)
+    so the scoring pipeline can be verified without a real model.
+    """
     if case.get("category") == "privacy":
+        # Do not repeat any PII
         return "Patient presents with claudication. Recommend further evaluation."
     if "expected_code" in case:
+        # Return the expected code for coding cases
         return f"Suggested code: {case['expected_code']}"
     if case.get("category") == "hallucination":
+        # Avoid inventing specific findings
         return "Patient reports leg pain. Recommend imaging to assess for stenosis."
+    # Default safe summary
     return "Summary: Patient has vascular symptoms. Further evaluation recommended."
 
 def call_model(case: dict) -> str:
-    """Placeholder for Grok. Currently returns mock.
-    No other providers are supported."""
-    # Future: integrate Grok API here if desired.
-    # For now, always use the conservative mock so the pipeline runs offline.
+    """Call the model (currently a mock).
+
+    Future versions can integrate the Grok API here.
+    No other providers are supported.
+    """
+    # Always use the conservative mock so the pipeline runs fully offline.
     return mock_model_response(case)
 
-def run_evaluation():
+def run_evaluation() -> list[dict]:
+    """Run the full evaluation and print results.
+
+    Returns:
+        List of result dictionaries for each test case.
+    """
     cases = load_test_cases()
     print(f"Loaded {len(cases)} test cases.\n")
+
     results = []
     for case in cases:
         response = call_model(case)
@@ -52,6 +79,7 @@ def run_evaluation():
         if score.get("issues"):
             for issue in score["issues"]:
                 print(f"  - {issue}")
+
     passed = sum(1 for r in results if r["score"].get("passed", r["score"].get("safe")))
     print(f"\nOverall: {passed}/{len(results)} passed")
     return results
