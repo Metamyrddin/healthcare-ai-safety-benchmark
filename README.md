@@ -29,63 +29,27 @@ Healthcare is high-stakes. A small mistake can affect real people. This project 
 
 ```
 healthcare-ai-safety-benchmark/
-├── README.md                 # You are here
+├── README.md
+├── requirements.txt
 ├── data/
-│   ├── test_cases.jsonl       # The test scenarios
-│   └── generate_cases.py      # Script to create more test cases
+│   └── test_cases.jsonl
 ├── evaluation/
-│   ├── run_eval.py            # Main script to run the tests
-│   ├── metrics.py             # Scoring functions
-│   └── judge_prompt.md        # Prompt used for AI-based scoring
-├── docs/
-│   ├── design.md              # Why we built it this way
-│   └── findings.md            # Results and what we learned
-├── results/
-│   └── summary.json           # Scores from the last run
-└── requirements.txt           # Python packages needed
+│   ├── run_eval.py
+│   └── metrics.py
+└── results/
 ```
 
 ## Getting Started
 
-### Requirements
-
-- Python 3.9 or newer
-- An API key for at least one model (optional for the first version)
-
-### Install
-
 ```bash
 pip install -r requirements.txt
-```
-
-### Run a Basic Evaluation
-
-```bash
 python evaluation/run_eval.py
 ```
 
-This will run the current test cases and print a simple summary.
-
-## Current Status
-
-This is the first production-ready version. It includes:
-
-- A starter set of test cases focused on medical coding and clinical notes
-- Basic automatic scoring
-- Clear documentation written in plain language
-- Structure ready for adding more models and deeper analysis
-
-## Next Steps
-
-- Add more test cases
-- Connect to Amazon Bedrock for cloud model testing
-- Expand human review of results
-- Publish detailed findings
-
 ## License
 
-MIT License. Feel free to use and improve this.
+MIT License.
 
 ## Contact
 
-Created by Ramnath Selagamsetty. Questions or suggestions are welcome via GitHub issues.
+Created by Ram Setty.
